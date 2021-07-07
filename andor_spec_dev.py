@@ -173,7 +173,59 @@ class AndorShamrockSpec(object):
         
         return(lines.value, blaze.value.decode(), home.value, offset.value)
 
+    ### Detector Offset
+
+    def get_detector_offset(self, entrance, exit):
+        """
+        entrance and exit are either 'direct' or 'side'
+
+        unsigned int WINAPI ShamrockGetDetectorOffsetEx(int device, int entrancePort, int exitPort, int *offset)
     
+        Description
+        Sets the detector offset. Use this function if the system has 4 ports and a detector offset value of a specific entrance and exit port combination is required.
+        
+        Combinations
+        DIRECT, DIRECT = 0, 0
+        DIRECT, SIDE      = 0, 1
+        SIDE, DIRECT      = 1, 0
+        SIDE, SIDE           = 1, 1
+        
+        Parameters
+        int device: Shamrock to interrogate
+        int entrancePort: Select entrance port to use
+        int exitPort: Select exit port to use
+        int *offset: pointer to detector offset (steps)
+        """
+        E = {'direct':0, 'side':1}
+        offset = c_int()
+        _err(self.lib.ShamrockGetDetectorOffsetEx(self.dev_id, E[entrance], E[exit], byref(offset)))
+        return offset.value
+
+    def set_detector_offset(self, entrance, exit, offset):
+        """
+        entrance and exit are either 'direct' or 'side'
+
+        unsigned int WINAPI ShamrockSetDetectorOffsetEx(int device, int entrancePort, int exitPort, int offset)
+ 
+        Description
+        Sets the detector offset. Use this function if the system has 4 ports and a detector offset for a specific entrance and exit port combination is to be set.
+        
+        Combinations
+        DIRECT, DIRECT = 0, 0
+        DIRECT, SIDE      = 0, 1
+        SIDE, DIRECT      = 1, 0
+        SIDE, SIDE           = 1, 1
+        
+        Parameters
+        int device: Select Shamrock to control
+        int entrancePort: Select entrance port to use
+        int exitPort: Select exit port to use
+        int offset: detector offset (steps)
+        """
+        E = {'direct':0, 'side':1}
+        offset = c_int(offset)
+        _err(self.lib.ShamrockSetDetectorOffsetEx(self.dev_id, E[entrance], E[exit], offset))
+
 
     ### Wavelength
         
@@ -277,6 +329,10 @@ if __name__ == '__main__':
         print("Flipper Mirror", s.flipper_mirror_present)
         print("-->input", s.get_flipper_mirror('input'))
         print("-->output", s.get_flipper_mirror('output'))
+
+        for x in ['direct', 'side']:
+            for y in ['direct', 'side']:
+                print('detector offset {} {}: {}'.format(x, y, s.get_detector_offset(x,y)))
         
 #         print("-->input", s.get_flipper_mirror('input'))
 #         print("move to direct")

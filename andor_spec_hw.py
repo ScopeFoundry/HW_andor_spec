@@ -39,6 +39,12 @@ class AndorShamrockSpecHW(HardwareComponent):
 
         self.settings.New('grating_calib_direct_in', dtype=float, 
                           array=True, initial=[[300e6,0,0,256,0,  (1/150.)*1e6, 16e3,0]]*3)
+
+        # Detector offsets
+        self.settings.New('det_offset_direct_direct', dtype=int)
+        self.settings.New('det_offset_direct_side', dtype=int)
+        self.settings.New('det_offset_side_direct', dtype=int)
+        self.settings.New('det_offset_side_side', dtype=int)
         
         
         
@@ -85,7 +91,23 @@ class AndorShamrockSpecHW(HardwareComponent):
         S.center_wl.connect_to_hardware(
             read_func = spec.get_wavelength,
             write_func = spec.set_wavelength)
-        
+
+        S.det_offset_direct_direct.connect_to_hardware(
+            read_func = lambda: spec.get_detector_offset('direct', 'direct'),
+            write_func = lambda x: spec.set_detector_offset('direct', 'direct', x)
+        )
+        S.det_offset_direct_side.connect_to_hardware(
+            read_func = lambda: spec.get_detector_offset('direct', 'side'),
+            write_func = lambda x: spec.set_detector_offset('direct', 'side', x)
+        )
+        S.det_offset_direct_direct.connect_to_hardware(
+            read_func = lambda: spec.get_detector_offset('side', 'direct'),
+            write_func = lambda x: spec.set_detector_offset('side', 'direct', x)
+        )
+        S.det_offset_side_side.connect_to_hardware(
+            read_func = lambda: spec.get_detector_offset('side', 'side'),
+            write_func = lambda x: spec.set_detector_offset('side', 'side', x)
+        )                        
         self.read_from_hardware()
         self.on_grating_id_change()
         
