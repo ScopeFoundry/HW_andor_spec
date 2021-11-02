@@ -173,6 +173,23 @@ class AndorShamrockSpec(object):
         
         return(lines.value, blaze.value.decode(), home.value, offset.value)
 
+
+    def get_grating_offset(self, grating_id):
+        """
+        unsigned int WINAPI ShamrockGetGratingOffset(int device,int grating, int *offset)
+ 
+        Description
+        Returns the grating offset
+ 
+        """
+        offset = c_int()
+        _err(self.lib.ShamrockGetGratingOffset(self.dev_id, grating_id, byref(offset)))
+        return offset.value
+
+    def set_grating_offset(self, grating_id, offset):
+        _err(self.lib.ShamrockSetGratingOffset(self.dev_id, grating_id, offset))
+
+
     ### Detector Offset
 
     def get_detector_offset(self, entrance, exit):
@@ -225,6 +242,7 @@ class AndorShamrockSpec(object):
         E = {'direct':0, 'side':1}
         offset = c_int(offset)
         _err(self.lib.ShamrockSetDetectorOffsetEx(self.dev_id, E[entrance], E[exit], offset))
+
 
 
     ### Wavelength
@@ -317,6 +335,7 @@ if __name__ == '__main__':
         print("grating", s.get_grating())
         for i in range(4):
             print("grating_info", i+1, s.get_grating_info(i+1))
+            print("grating offset", i+1, s.get_grating_offset(i+1))
         print(s.gratings)
         print("wl", s.get_wavelength())
         

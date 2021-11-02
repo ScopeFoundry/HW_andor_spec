@@ -2,6 +2,7 @@ from ScopeFoundry.hardware import HardwareComponent
 from ScopeFoundryHW.andor_spec.andor_spec_dev import AndorShamrockSpec
 import numpy as np
 
+
 class AndorShamrockSpecHW(HardwareComponent):
     
     name = 'andor_spec'
@@ -45,9 +46,18 @@ class AndorShamrockSpecHW(HardwareComponent):
         self.settings.New('det_offset_direct_side', dtype=int)
         self.settings.New('det_offset_side_direct', dtype=int)
         self.settings.New('det_offset_side_side', dtype=int)
+
+        # grating offsets
+        self.settings.New('grating_offset_1', dtype=int)
+        self.settings.New('grating_offset_2', dtype=int)
+        self.settings.New('grating_offset_3', dtype=int)
+        self.settings.New('grating_offset_4', dtype=int)
+
+        #calibration promt
+        #self.add_operation('calibration', self.load_ui_calibration)
         
         
-        
+   
     def connect(self):
         S = self.settings
         
@@ -108,6 +118,28 @@ class AndorShamrockSpecHW(HardwareComponent):
             read_func = lambda: spec.get_detector_offset('side', 'side'),
             write_func = lambda x: spec.set_detector_offset('side', 'side', x)
         )                        
+
+
+
+
+        S.grating_offset_1.connect_to_hardware(
+            read_func = lambda: spec.get_grating_offset(1),
+            write_func = lambda x: spec.set_grating_offset(1,x)
+        )
+        S.grating_offset_2.connect_to_hardware(
+            read_func = lambda: spec.get_grating_offset(2),
+            write_func = lambda x: spec.set_grating_offset(2,x)
+        )
+        S.grating_offset_3.connect_to_hardware(
+            read_func = lambda: spec.get_grating_offset(3),
+            write_func = lambda x: spec.set_grating_offset(3,x)
+        )
+        S.grating_offset_4.connect_to_hardware(
+            read_func = lambda: spec.get_grating_offset(4),
+            write_func = lambda x: spec.set_grating_offset(4,x)
+        )
+
+
         self.read_from_hardware()
         self.on_grating_id_change()
         
@@ -124,11 +156,17 @@ class AndorShamrockSpecHW(HardwareComponent):
     def on_grating_id_change(self):
         self.settings['grating_name'] = self.spec.gratings[self.settings['grating_id']]
         self.settings.focus_mirror.read_from_hardware()
-        
-        
+    '''     
+    def load_ui_calibration(self):
+        self.ui=load_qt_ui_file('C:\\Users\\lab\\Documents\\foundry_scope\mi_cryo_micro\\montana_setup_control.ui')    
+        self.ui.show()
+        self.ui.activateWindow()
+    '''
+       
     def get_wl_calibration(self, px_index, binning=1, m_order=1):
         S = self.settings
         grating_id = S['grating_id'] - 1
+        
         
         if S['input_flipper'] == 'side':
             grating_calib_array = S['grating_calib_side_in'][grating_id]
@@ -162,3 +200,4 @@ def wl_p_calib(px, n0, offset_adjust, wl_center, m_order, d_grating, x_pixel, f,
     return ((d_grating/m_order)
                     *(np.sin(psi-0.5*gamma)
                       + np.sin(psi+0.5*gamma+eta))) + curvature*n**2
+
