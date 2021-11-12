@@ -35,10 +35,10 @@ class AndorShamrockSpecHW(HardwareComponent):
         #self.settings.New('slit_output_side', dtype=float, unit='um')
         
         self.settings.New('grating_calib_side_in', dtype=float, 
-                          array=True, initial=[[300e6,0,0,256,0,  (1/150.)*1e6, 16e3,0]]*3)
+                          array=True, initial=[[300e6,0,0,256,0,  (1/150.)*1e6, 16e3,0]]*4)
 
         self.settings.New('grating_calib_direct_in', dtype=float, 
-                          array=True, initial=[[300e6,0,0,256,0,  (1/150.)*1e6, 16e3,0]]*3)
+                          array=True, initial=[[300e6,0,0,256,0,  (1/150.)*1e6, 16e3,0]]*4)
         
         
         
